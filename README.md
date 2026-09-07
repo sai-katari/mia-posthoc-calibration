@@ -21,7 +21,7 @@ Temperature scaling fits a scalar T on the validation set that divides the logit
 before softmax. Higher T produces softer, higher-entropy predictions. It takes a
 few seconds to apply and does not change the model's argmax predictions.
 
-Three attacker types:
+Two attacker types are included in the main evaluation:
 
 | Attacker | Knows calibration was applied? | Knows T? | Method |
 |----------|-------------------------------|----------|--------|
@@ -62,13 +62,6 @@ python scripts/run_adaptive_attacks.py --config configs/baseline.yaml
 python scripts/analyze_results.py      --config configs/baseline.yaml
 ```
 
-Sanity audit before looking at results:
-
-```bash
-python scripts/sanity_audit.py
-# 42 checks, 0 failures
-```
-
 ## Results
 
 ### Temperature values
@@ -95,8 +88,8 @@ while leaving frozen-model calibration essentially unchanged:
 | Regime | ECE before | ECE after | delta ECE |
 |--------|-----------|-----------|-----------|
 | Frozen | 0.018 | 0.018 | 0.000 |
-| Scratch | 0.036 | 0.019 | -0.017 |
-| Partial FT | 0.078 | 0.039 | -0.039 |
+| Scratch | 0.037 | 0.021 | -0.016 |
+| Partial FT | 0.080 | 0.041 | -0.039 |
 | Full FT | 0.088 | 0.050 | -0.038 |
 
 ### Loss MIA AUROC (mean +/- sample SD, 3 seeds)
@@ -175,15 +168,11 @@ privacy protection applies to this experimental setting.
 
 ## Connection to Project 1
 
-Project 1: which fine-tuning regimes leak membership information, and why?
-Project 2: does post-hoc calibration reduce that leakage?
-
-The entropy-attack finding from Project 1 -- that entropy exposed additional
-membership signal in full-FT models at low FPR -- motivated this study. The
-entropy results here show that temperature scaling does not reduce that
-membership-relevant entropy signal in a meaningful way: entropy TPR@1% FPR
-changes by +0.0016 +/- 0.0028 for full FT, providing no evidence of a
-systematic reduction.
+The low-FPR precision sensitivity observed in Project 1 motivated examining
+whether post-hoc calibration changes membership-score rankings. In this study,
+temperature scaling did not produce a consistent reduction in entropy-based
+leakage: for full fine-tuning, entropy TPR at 1% FPR changed by +0.0016 ±
+0.0028 across three seeds.
 
 ## Related work
 
@@ -191,8 +180,9 @@ Chen and Pattabiraman (NDSS 2024) mitigate membership inference by enforcing
 less confident predictions during training (HAMP). The finding here is the
 post-hoc counterpart: softening confidence after training improves calibration
 but leaves the membership ordering intact, and an attacker with T recovers the
-original leakage exactly. Together these suggest the timing of the defense
-matters more than whether outputs look less confident.
+original leakage exactly. This motivates a broader comparison between training-time defenses such as HAMP
+and post-hoc calibration. The present study evaluates only post-hoc temperature
+scaling and does not establish that defense timing alone explains the difference.
 
 ## References
 

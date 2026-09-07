@@ -2,9 +2,7 @@
 
 Follow-on to [Project 1](https://github.com/sai-katari/medical-membership-privacy),
 which showed that fully fine-tuned ResNet-18 models on DermaMNIST leak membership
-information (loss-MIA AUROC = 0.698) and that at low FPR, raw float32 outputs showed higher entropy TPR than loss TPR
-(3.4% vs ~0% at 1% FPR); this gap is sensitive to output precision and tie-breaking
-and should not be interpreted as uniquely additional entropy-based membership signal.
+information (loss-MIA AUROC = 0.698). At 1% FPR, the raw float32 outputs produced entropy TPR of 3.4% and loss TPR near 0%. However, normalizing the complete probability vectors raised loss TPR to approximately 3.45%, comparable to entropy. Therefore, we treat the original difference as sensitivity to output precision and tied scores -- not evidence that entropy uniquely captures additional membership information.
 
 The question here is whether temperature scaling -- applied after training, no
 retraining needed -- removes that membership information or reduces it in any
@@ -61,6 +59,15 @@ python scripts/run_naive_attacks.py    --config configs/baseline.yaml
 python scripts/run_adaptive_attacks.py --config configs/baseline.yaml
 python scripts/analyze_results.py      --config configs/baseline.yaml
 ```
+
+Experiment artifacts committed in this repository:
+
+- `experiments/calibration_<regime>_seed<N>.json` -- per-run fitted temperature and ECE metrics
+- `experiments/attack_results_<regime>_seed<N>.json` -- per-run MIA scores and AUROC
+- `results/defense_comparison.csv` -- aggregate naive and adaptive AUROC by regime and seed
+- `results/adaptive_attacks.csv` -- known-T adaptive attack results only
+
+Large per-sample output files are not committed; regenerate them with the pipeline above.
 
 ## Results
 
@@ -139,9 +146,7 @@ Improved calibration and improved membership privacy are not equivalent properti
 
 ## Sanity checks
 
-- Known-T inversion: max reconstruction error < 4e-16 in float64 synthetic tests;
-  on stored float32 outputs the error is ~3e-7, within float32 precision and not
-  affecting attack results. (Synthetic round-trip check only.)
+- Known-T inversion: max reconstruction error < 4e-16 in float64 synthetic tests; on stored float32 outputs the error is ~3e-7. Although overall attack AUROC remained nearly unchanged, float32 saturation and tied probabilities affected some low-FPR measurements.
 - Sample ordering: baseline and scaled attack pools have identical ordering (all 12 runs)
 - Calibration metrics computed on 2005 non-members (test set) only
 - ddof=1 throughout (verified by static grep)

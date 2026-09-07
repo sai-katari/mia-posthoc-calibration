@@ -1,0 +1,19 @@
+dataset: dermamnist
+architecture: resnet18
+image_size: 224
+num_workers: 4
+pin_memory: true
+batch_size: 64
+max_epochs: 30
+optimizer: adamw
+weight_decay: 1.0e-4
+scheduler: cosine_annealing
+checkpoint_metric: val_auc
+smoothing: 0.1
+
+lr_scratch:           3.0e-4
+lr_frozen_head:       1.0e-3
+lr_partial_backbone:  1.0e-4
+lr_partial_head:      1.0e-3
+lr_full_backbone:     1.0e-4
+lr_full_head:         1.0e-3

@@ -1,0 +1,11 @@
+# Path to Project 1 directory in your environment
+p1_dir: ../medical-membership-privacy
+
+dataset: dermamnist
+architecture: resnet18
+regimes: [scratch, frozen, partial, full]
+seeds: [42, 123, 2026]
+image_size: 224
+batch_size: 256
+num_workers: 4
+pin_memory: true

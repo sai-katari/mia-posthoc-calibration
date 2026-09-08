@@ -56,10 +56,12 @@ def extract_outputs(model, loader, device, membership_label):
                 t      = targets[i].item()
                 p_vec  = probs[i].numpy()
                 p_true = float(p_vec[t])
-                loss   = float(-np.log(np.clip(p_true, 1e-300, None)))
-                entr   = float(
-                    -(p_vec * np.log(np.clip(p_vec, 1e-300, None))).sum()
-                )
+                p_vec_f64 = p_vec.astype(np.float64)
+                p_vec_f64 /= p_vec_f64.sum()
+                tiny = np.finfo(np.float64).tiny
+                log_p = np.log(np.clip(p_vec_f64, tiny, 1.0))
+                loss   = float(-log_p[t])
+                entr   = float(-(p_vec_f64 * log_p).sum())
                 records.append({
                     "sample_idx": idx,
                     "true_class": t,

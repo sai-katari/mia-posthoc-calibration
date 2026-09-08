@@ -76,8 +76,10 @@ def load_run_data(run_id, out_dir):
     if os.path.exists(p):
         with open(p) as f:
             atk = {a["attack"]: a for a in json.load(f)}
-        data["adaptive_loss_auc"]  = atk.get("loss_adaptive",     {}).get("auc", None)
-        data["semi_loss_auc"]      = atk.get("loss_semiadaptive",  {}).get("auc", None)
+        data["adaptive_loss_auc"]  = atk.get("loss_adaptive",  {}).get("auc", None)
+        data["adaptive_loss_tpr1"] = atk.get("loss_adaptive",  {}).get("tpr_at_001_fpr", None)
+        data["adaptive_entr_auc"]  = atk.get("entropy_adaptive", {}).get("auc", None)
+        data["adaptive_entr_tpr1"] = atk.get("entropy_adaptive", {}).get("tpr_at_001_fpr", None)
 
     return data
 
@@ -114,7 +116,7 @@ def main():
     print("\n" + "="*80)
     print("Paired delta: temperature scaling vs baseline (mean +/- sample SD, n=3)")
     print(f"{'Regime':<12} {'T':>6} {'ΔECE':>10} {'ΔNaiveMIA':>12} "
-          f"{'AdaptMIA':>10} {'SemiMIA':>10}")
+          f"{'AdaptMIA':>10}")
     print("="*80)
 
     summary_rows = []
@@ -124,10 +126,8 @@ def main():
         delta_ece  = [x.get("scaled_ece", 0)  - x.get("baseline_ece", 0)  for x in r]
         delta_mia  = [x.get("naive_loss_auc", 0) - x.get("baseline_loss_auc", 0) for x in r]
         adapt_auc  = [x.get("adaptive_loss_auc") for x in r]
-        semi_auc   = [x.get("semi_loss_auc")     for x in r]
-
         print(f"{regime:<12} {ms(Ts):>6}  {ms(delta_ece):>10}  "
-              f"{ms(delta_mia):>12}  {ms(adapt_auc):>10}  {ms(semi_auc):>10}")
+              f"{ms(delta_mia):>12}  {ms(adapt_auc):>10}")
 
         for i, x in enumerate(r):
             summary_rows.append({
@@ -139,7 +139,6 @@ def main():
                 "baseline_loss_auc":   x.get("baseline_loss_auc"),
                 "naive_loss_auc":      x.get("naive_loss_auc"),
                 "adaptive_loss_auc":   x.get("adaptive_loss_auc"),
-                "semi_loss_auc":       x.get("semi_loss_auc"),
                 "baseline_entr_tpr1":  x.get("baseline_entr_tpr1"),
                 "naive_entr_tpr1":     x.get("naive_entr_tpr1"),
                 "baseline_entr_gap":   x.get("baseline_entr_gap"),

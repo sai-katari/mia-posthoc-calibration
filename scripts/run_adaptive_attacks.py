@@ -24,9 +24,7 @@ import yaml
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.attacks.adaptive_attack import run_adaptive_attacks
-from src.attacks.semiadaptive_attack import run_semiadaptive_attacks
 
-N_SHADOW = 200  # shadow queries for T estimation
 
 
 def parse_args():
@@ -66,47 +64,24 @@ def main():
 
             T = cal["temperature"]
 
-            # ── Phase 4: known-T adaptive attack ──────────────────────────
+            # Known-T adaptive attack
             adaptive_results = run_adaptive_attacks(records, T)
 
-            # ── Phase 5: semi-adaptive (estimate T from shadow queries) ───
-            # Shadow data: first N_SHADOW non-member records
-            # (test samples — class-labeled, membership known to be 0)
-            nonmembers = [r for r in records if r["membership"] == 0]
-            shadow     = nonmembers[:N_SHADOW]
-
-            shadow_scaled_probs = np.array([r["prob_vector"] for r in shadow])
-            shadow_true_classes = [r["true_class"] for r in shadow]
-
-            target_scaled_probs = np.array([r["prob_vector"] for r in records])
-            target_true_classes = [r["true_class"]  for r in records]
-            target_membership   = [r["membership"]  for r in records]
-
-            semi_results, estimated_T, shadow_nll = run_semiadaptive_attacks(
-                target_scaled_probs,
-                target_true_classes,
-                target_membership,
-                shadow_scaled_probs,
-                shadow_true_classes,
-            )
-
-            all_results = adaptive_results + semi_results
             with open(f"{out_dir}/attack_results_adaptive.json", "w") as f:
-                json.dump(all_results, f, indent=2)
+                json.dump(adaptive_results, f, indent=2)
 
-            for r in all_results:
+            for r in adaptive_results:
                 all_rows.append({"regime": regime, "seed": seed, **r})
 
-            print(f"  {run_id} | T={T:.3f} est_T={estimated_T:.3f} | "
-                  f"adaptive_loss_auc={adaptive_results[0]['auc']:.4f}  "
-                  f"semi_loss_auc={semi_results[0]['auc']:.4f}")
+            print(f"  {run_id} | T={T:.3f} | "
+                  f"adaptive_loss_auc={adaptive_results[0]['auc']:.4f}")
 
     print("\n" + "="*72)
     print(f"{'Regime':<10} {'Attack':<28} {'AUC':>10} {'TPR@1%':>10}")
     print("="*72)
 
     for regime in config["regimes"]:
-        for attack in ["loss_adaptive", "loss_semiadaptive"]:
+        for attack in ["loss_adaptive", "entropy_adaptive"]:
             rows  = [r for r in all_rows
                      if r["regime"] == regime and r["attack"] == attack]
             if not rows:

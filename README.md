@@ -28,11 +28,11 @@ Two attacker types are included in the main evaluation:
 | Naive | No | No | Standard loss/confidence/entropy attacks on scaled outputs |
 | Adaptive | Yes | Yes | Known-T reconstruction via log-space inversion, then standard attacks |
 
-We considered a semi-adaptive attacker that estimates T from shadow samples
-without knowing it directly. The NLL-based T estimation procedure is
-non-identifiable: the scaled output is already approximately NLL-optimal on
-data from the same distribution, so the estimator finds T near 1 regardless
-of the true T. Semi-adaptive results are therefore not reported.
+We considered estimating T from labeled shadow samples using NLL minimization.
+However, this procedure identifies the temperature that best calibrates the
+observed outputs on the shadow distribution, not necessarily the defender's
+original temperature. The original T is therefore not generally identifiable
+under this procedure, so semi-adaptive results are not evaluated.
 
 Known-T reconstruction via log-space inversion is algebraically exact for
 complete, unrounded probability vectors. Reconstruction from stored float32
@@ -166,11 +166,12 @@ reconstruction may no longer be possible. Evaluating membership privacy under
 those restricted-output settings requires separate attack models and is left for
 future work.
 
-The semi-adaptive estimator has a structural identifiability problem, not a
-tuning problem. NLL minimisation on honestly labeled shadow data from the same
-distribution prefers the already-calibrated output, so T_hat converges near 1
-regardless of T_true. A proper implementation would require disjoint shadow
-data and independently trained shadow models with known membership splits.
+We considered estimating T from labeled shadow samples using NLL minimization.
+However, this procedure identifies the temperature that best calibrates the
+observed outputs on the shadow distribution, not necessarily the defender's
+original temperature. The original T is therefore not generally identifiable
+under this procedure. A proper semi-adaptive attacker would require disjoint
+shadow data and independently trained shadow models with known membership splits.
 
 This study covers one dataset (DermaMNIST) and one architecture (ResNet-18).
 The conclusion that temperature scaling does not provide measurable membership

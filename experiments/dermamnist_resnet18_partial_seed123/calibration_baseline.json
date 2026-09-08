@@ -1,0 +1,18 @@
+{
+  "run_id": "dermamnist_resnet18_partial_seed123",
+  "regime": "partial",
+  "seed": 123,
+  "n_members": 7007,
+  "n_nonmembers": 2005,
+  "calibration": {
+    "ece": 0.064835,
+    "nll": 0.504516,
+    "brier": 0.235088,
+    "avg_entropy": 0.236086
+  },
+  "entropy_analysis": {
+    "member_entropy": 0.062345,
+    "nonmember_entropy": 0.236086,
+    "entropy_gap": 0.17374
+  }
+}

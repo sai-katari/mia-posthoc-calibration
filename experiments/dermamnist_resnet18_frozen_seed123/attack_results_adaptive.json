@@ -1,0 +1,23 @@
+[
+  {
+    "attack": "loss_adaptive",
+    "auc": 0.517,
+    "tpr_at_0001_fpr": 0.0007,
+    "tpr_at_001_fpr": 0.0101,
+    "balanced_accuracy": 0.517
+  },
+  {
+    "attack": "confidence_adaptive",
+    "auc": 0.5055,
+    "tpr_at_0001_fpr": 0.0007,
+    "tpr_at_001_fpr": 0.0101,
+    "balanced_accuracy": 0.5055
+  },
+  {
+    "attack": "entropy_adaptive",
+    "auc": 0.505,
+    "tpr_at_0001_fpr": 0.0007,
+    "tpr_at_001_fpr": 0.0104,
+    "balanced_accuracy": 0.505
+  }
+]

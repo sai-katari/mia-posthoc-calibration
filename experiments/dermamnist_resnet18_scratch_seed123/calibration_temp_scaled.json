@@ -1,0 +1,17 @@
+{
+  "run_id": "dermamnist_resnet18_scratch_seed123",
+  "regime": "scratch",
+  "seed": 123,
+  "temperature": 1.068447,
+  "calibration": {
+    "ece": 0.023086,
+    "nll": 0.622442,
+    "brier": 0.317562,
+    "avg_entropy": 0.609394
+  },
+  "entropy_analysis": {
+    "member_entropy": 0.589753,
+    "nonmember_entropy": 0.609394,
+    "entropy_gap": 0.019641
+  }
+}

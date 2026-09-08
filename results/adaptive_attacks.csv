@@ -1,0 +1,13 @@
+run_id,regime,seed,temperature,loss_auc_baseline,loss_auc_adaptive,loss_tpr001_baseline,loss_tpr001_adaptive,entropy_auc_baseline,entropy_auc_adaptive,entropy_tpr001_baseline,entropy_tpr001_adaptive
+dermamnist_resnet18_frozen_seed42,frozen,42,1.029574,0.5165,0.5165,0.0111,0.0111,0.5039,0.5039,0.0108,0.0108
+dermamnist_resnet18_frozen_seed123,frozen,123,1.002311,0.517,0.517,0.0101,0.0101,0.505,0.505,0.0104,0.0104
+dermamnist_resnet18_frozen_seed2026,frozen,2026,1.00442,0.5156,0.5156,0.0094,0.0094,0.5032,0.5032,0.0096,0.0096
+dermamnist_resnet18_scratch_seed42,scratch,42,1.154814,0.5389,0.5389,0.0103,0.0103,0.5176,0.5176,0.01,0.01
+dermamnist_resnet18_scratch_seed123,scratch,123,1.068447,0.5239,0.5239,0.0083,0.0083,0.5089,0.5089,0.009,0.009
+dermamnist_resnet18_scratch_seed2026,scratch,2026,1.096981,0.5123,0.5123,0.0108,0.0108,0.5041,0.5041,0.0111,0.0111
+dermamnist_resnet18_partial_seed42,partial,42,1.692823,0.717,0.717,0.0178,0.0178,0.7143,0.7143,0.0181,0.0181
+dermamnist_resnet18_partial_seed123,partial,123,1.388496,0.6299,0.6299,0.012,0.012,0.6216,0.6216,0.0118,0.0118
+dermamnist_resnet18_partial_seed2026,partial,2026,1.523502,0.6911,0.6911,0.0154,0.0154,0.6877,0.6877,0.0154,0.0154
+dermamnist_resnet18_full_seed42,full,42,1.812057,0.6969,0.6969,0.0348,0.0348,0.6945,0.6945,0.0344,0.0344
+dermamnist_resnet18_full_seed123,full,123,1.73578,0.701,0.701,0.0372,0.0372,0.6987,0.6987,0.037,0.037
+dermamnist_resnet18_full_seed2026,full,2026,1.770078,0.6983,0.6983,0.0315,0.0315,0.697,0.697,0.0313,0.0313

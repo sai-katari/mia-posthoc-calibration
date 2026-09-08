@@ -1,0 +1,23 @@
+[
+  {
+    "attack": "loss_naive",
+    "auc": 0.5239,
+    "tpr_at_0001_fpr": 0.0004,
+    "tpr_at_001_fpr": 0.0086,
+    "balanced_accuracy": 0.5239
+  },
+  {
+    "attack": "confidence_naive",
+    "auc": 0.508,
+    "tpr_at_0001_fpr": 0.0004,
+    "tpr_at_001_fpr": 0.0086,
+    "balanced_accuracy": 0.508
+  },
+  {
+    "attack": "entropy_naive",
+    "auc": 0.5091,
+    "tpr_at_0001_fpr": 0.0004,
+    "tpr_at_001_fpr": 0.01,
+    "balanced_accuracy": 0.5091
+  }
+]

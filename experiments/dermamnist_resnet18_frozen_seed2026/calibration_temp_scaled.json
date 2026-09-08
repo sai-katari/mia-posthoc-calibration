@@ -1,0 +1,17 @@
+{
+  "run_id": "dermamnist_resnet18_frozen_seed2026",
+  "regime": "frozen",
+  "seed": 2026,
+  "temperature": 1.00442,
+  "calibration": {
+    "ece": 0.013635,
+    "nll": 0.603364,
+    "brier": 0.304341,
+    "avg_entropy": 0.59208
+  },
+  "entropy_analysis": {
+    "member_entropy": 0.586145,
+    "nonmember_entropy": 0.59208,
+    "entropy_gap": 0.005936
+  }
+}

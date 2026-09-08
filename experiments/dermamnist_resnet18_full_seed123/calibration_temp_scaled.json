@@ -1,0 +1,17 @@
+{
+  "run_id": "dermamnist_resnet18_full_seed123",
+  "regime": "full",
+  "seed": 123,
+  "temperature": 1.73578,
+  "calibration": {
+    "ece": 0.046335,
+    "nll": 0.390571,
+    "brier": 0.189992,
+    "avg_entropy": 0.23772
+  },
+  "entropy_analysis": {
+    "member_entropy": 0.025855,
+    "nonmember_entropy": 0.23772,
+    "entropy_gap": 0.211865
+  }
+}

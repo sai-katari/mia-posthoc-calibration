@@ -118,7 +118,7 @@ while leaving frozen-model calibration essentially unchanged:
 |--------|----------|----------------|--------------------|
 | Frozen | 0.516 +/- 0.001 | 0.516 +/- 0.001 | 0.516 +/- 0.001 |
 | Scratch | 0.525 +/- 0.013 | 0.525 +/- 0.013 | 0.525 +/- 0.013 |
-| Partial FT | 0.679 +/- 0.045 | 0.679 +/- 0.044 | 0.679 +/- 0.045 |
+| Partial FT | 0.679 +/- 0.045 | 0.679 +/- 0.045 | 0.679 +/- 0.045 |
 | Full FT | 0.699 +/- 0.002 | 0.700 +/- 0.002 | 0.699 +/- 0.002 |
 
 ### Entropy MIA AUROC and TPR @ 1% FPR
@@ -143,8 +143,8 @@ reduction across runs.
 
 The known-T adaptive attack recovered approximately the original AUC in all
 cases. For full FT the adaptive AUC is 0.699 vs the baseline 0.699. Membership
-information is preserved in the scaled distribution and is recoverable given T
-and full-precision outputs.
+information is preserved in the scaled distribution and is approximately
+recoverable from complete float32 outputs, subject to finite-precision loss.
 
 Improved calibration and improved membership privacy are not equivalent properties.
 
@@ -159,7 +159,7 @@ Improved calibration and improved membership privacy are not equivalent properti
 
 ## Limitations
 
-Known-T reconstruction relies on receiving a complete, full-precision probability
+Known-T reconstruction relies on receiving the complete float32 probability
 vector and knowing T. In deployed systems that round or quantize probabilities,
 truncate outputs to top-k predictions, or provide only predicted labels,
 reconstruction may no longer be possible. Evaluating membership privacy under
@@ -199,8 +199,8 @@ entropy signal in any meaningful way: entropy TPR at 1% FPR changes by
 Chen and Pattabiraman (NDSS 2024) mitigate membership inference by enforcing
 less confident predictions during training (HAMP). The finding here is the
 post-hoc counterpart: softening confidence after training improves calibration
-but leaves the membership ordering intact, and an attacker with T recovers the
-original leakage exactly. This motivates a broader comparison between
+but leaves the membership ordering intact, and an attacker with T approximately
+reconstructs the original leakage from float32 outputs. This motivates a broader comparison between
 training-time defenses such as HAMP and post-hoc calibration. The present
 study evaluates only post-hoc temperature scaling and does not establish that
 defense timing alone explains the difference.

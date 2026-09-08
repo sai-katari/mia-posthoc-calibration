@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
-"""Phases 4+5 — Known-T and semi-adaptive attacks.
+"""Known-T adaptive attack.
 
-Phase 4 (known-T): attacker has exact T, inverts scaling exactly.
-  Expected: AUC recovers to approximately the pre-scaling baseline.
-  If it does not, suspect the implementation.
-
-Phase 5 (semi-adaptive): attacker knows calibration was applied,
-  estimates T from 200 shadow queries (class-labeled test samples),
-  then attacks the full pool.
+Attacker knows T exactly and inverts temperature scaling before
+computing membership inference scores. Expected result: AUC recovers
+to approximately the pre-scaling baseline.
 
 Usage:
     python scripts/run_adaptive_attacks.py --config configs/baseline.yaml

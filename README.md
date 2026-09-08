@@ -2,7 +2,9 @@
 
 Follow-on to [Project 1](https://github.com/sai-katari/medical-membership-privacy),
 which showed that fully fine-tuned ResNet-18 models on DermaMNIST leak membership
-information (loss-MIA AUROC = 0.698). At 1% FPR, the raw float32 outputs produced entropy TPR of 3.4% and loss TPR near 0%. However, normalizing the complete probability vectors raised loss TPR to approximately 3.45%, comparable to entropy. Therefore, we treat the original difference as sensitivity to output precision and tied scores -- not evidence that entropy uniquely captures additional membership information.
+information (loss-MIA AUROC = 0.699). At 1% FPR, both loss and entropy attacks
+produce approximately 3.4% TPR after correcting for float32 output precision
+(see Project 1 for details).
 
 The question here is whether temperature scaling -- applied after training, no
 retraining needed -- removes that membership information or reduces it in any
@@ -24,17 +26,21 @@ Two attacker types are included in the main evaluation:
 | Attacker | Knows calibration was applied? | Knows T? | Method |
 |----------|-------------------------------|----------|--------|
 | Naive | No | No | Standard loss/confidence/entropy attacks on scaled outputs |
-| Adaptive | Yes | Yes | Exact log-space inversion, then standard attacks |
+| Adaptive | Yes | Yes | Known-T reconstruction via log-space inversion, then standard attacks |
 
-An intermediate "semi-adaptive" attacker was implemented but excluded from
-headline results: its NLL-based T estimator is not identifiable (see
-Limitations), so its outputs are diagnostic only.
+We considered a semi-adaptive attacker that estimates T from shadow samples
+without knowing it directly. The NLL-based T estimation procedure is
+non-identifiable: the scaled output is already approximately NLL-optimal on
+data from the same distribution, so the estimator finds T near 1 regardless
+of the true T. Semi-adaptive results are therefore not reported.
 
-Exact inversion is valid when the attacker receives a complete, full-precision
-probability vector and knows T. Under rounding, quantization, top-k truncation,
-or label-only output, exact inversion may no longer be possible. Evaluating
-membership privacy under those restricted-output settings requires separate attack
-models and is left for future work.
+Known-T reconstruction via log-space inversion is algebraically exact for
+complete, unrounded probability vectors. Reconstruction from stored float32
+probabilities is approximate; the float64 synthetic reconstruction test
+serves as the exact sanity check. Under rounding, quantization, top-k
+truncation, or label-only output, reconstruction may no longer be possible.
+Evaluating membership privacy under those restricted-output settings requires
+separate attack models and is left for future work.
 
 ## Setup
 
@@ -60,14 +66,21 @@ python scripts/run_adaptive_attacks.py --config configs/baseline.yaml
 python scripts/analyze_results.py      --config configs/baseline.yaml
 ```
 
-Experiment artifacts committed in this repository:
+Experiment artifacts are committed under this structure:
 
-- `experiments/calibration_<regime>_seed<N>.json` -- per-run fitted temperature and ECE metrics
-- `experiments/attack_results_<regime>_seed<N>.json` -- per-run MIA scores and AUROC
-- `results/defense_comparison.csv` -- aggregate naive and adaptive AUROC by regime and seed
-- `results/adaptive_attacks.csv` -- known-T adaptive attack results only
+    experiments/dermamnist_resnet18_{regime}_seed{N}/
+        calibration_baseline.json
+        calibration_temp_scaled.json
+        attack_results_baseline.json
+        attack_results_naive_scaled.json
+        attack_results_adaptive.json
+    results/
+        defense_comparison.csv
+        adaptive_attacks.csv
+        naive_scaled_attacks.csv
 
-Large per-sample output files are not committed; regenerate them with the pipeline above.
+Large per-sample output files are not committed; regenerate them with the
+pipeline above.
 
 ## Results
 
@@ -105,8 +118,8 @@ while leaving frozen-model calibration essentially unchanged:
 |--------|----------|----------------|--------------------|
 | Frozen | 0.516 +/- 0.001 | 0.516 +/- 0.001 | 0.516 +/- 0.001 |
 | Scratch | 0.525 +/- 0.013 | 0.525 +/- 0.013 | 0.525 +/- 0.013 |
-| Partial FT | 0.679 +/- 0.045 | 0.679 +/- 0.045 | 0.679 +/- 0.045 |
-| Full FT | 0.698 +/- 0.002 | 0.700 +/- 0.002 | 0.699 +/- 0.002 |
+| Partial FT | 0.679 +/- 0.045 | 0.679 +/- 0.044 | 0.679 +/- 0.045 |
+| Full FT | 0.699 +/- 0.002 | 0.700 +/- 0.002 | 0.699 +/- 0.002 |
 
 ### Entropy MIA AUROC and TPR @ 1% FPR
 
@@ -124,29 +137,21 @@ while leaving frozen-model calibration essentially unchanged:
 Temperature scaling substantially improves calibration but does not materially
 reduce membership leakage. The naive loss MIA AUC is essentially unchanged after
 scaling across all four regimes -- the largest movement is full FT going from
-0.698 to 0.700. Entropy attacks tell the same story: the paired TPR@1% change for
-full FT is +0.0016 +/- 0.0028 across three seeds, indicating no consistent
+0.699 to 0.700. Entropy attacks tell the same story: the paired TPR@1% change for
+full FT is +0.002 +/- 0.003 across three seeds, indicating no consistent
 reduction across runs.
 
-The known-T adaptive attack recovered approximately the original AUC in all cases.
-For full FT the adaptive AUC is 0.699 vs the baseline 0.698. Membership information
-is preserved in the scaled distribution and is recoverable given T and full-precision
-outputs.
-
-Semi-adaptive results are not reported as findings. The NLL-based T estimator
-has a structural identifiability problem: the scaled output is already
-approximately NLL-optimal on data from the same distribution as the shadow set,
-so the estimator finds T_hat ~= 1 regardless of T_true. A proper semi-adaptive
-attacker requires independently trained shadow models with known membership
-splits -- that is future work. The headline conclusion does not depend on this
-attacker since the naive attack already shows temperature scaling does not
-reduce leakage.
+The known-T adaptive attack recovered approximately the original AUC in all
+cases. For full FT the adaptive AUC is 0.699 vs the baseline 0.699. Membership
+information is preserved in the scaled distribution and is recoverable given T
+and full-precision outputs.
 
 Improved calibration and improved membership privacy are not equivalent properties.
 
 ## Sanity checks
 
-- Known-T inversion: max reconstruction error < 4e-16 in float64 synthetic tests; on stored float32 outputs the error is ~3e-7. Although overall attack AUROC remained nearly unchanged, float32 saturation and tied probabilities affected some low-FPR measurements.
+- Known-T reconstruction: max reconstruction error < 4e-16 in float64 synthetic
+  tests; on stored float32 outputs the error is approximately 3e-7
 - Sample ordering: baseline and scaled attack pools have identical ordering (all 12 runs)
 - Calibration metrics computed on 2005 non-members (test set) only
 - ddof=1 throughout (verified by static grep)
@@ -154,30 +159,40 @@ Improved calibration and improved membership privacy are not equivalent properti
 
 ## Limitations
 
-Exact inversion relies on receiving a complete, full-precision probability vector
-and knowing T. In deployed systems that round or quantize probabilities, truncate
-outputs to top-k predictions, or provide only predicted labels, exact inversion
-may no longer be possible. Evaluating membership privacy under those
-restricted-output settings requires separate attack models and is left for future
-work.
+Known-T reconstruction relies on receiving a complete, full-precision probability
+vector and knowing T. In deployed systems that round or quantize probabilities,
+truncate outputs to top-k predictions, or provide only predicted labels,
+reconstruction may no longer be possible. Evaluating membership privacy under
+those restricted-output settings requires separate attack models and is left for
+future work.
 
 The semi-adaptive estimator has a structural identifiability problem, not a
-tuning problem: NLL minimisation on honestly labeled shadow data prefers the
-defender's already-calibrated output (T_hat ~= 1). No grid refinement fixes
-this. A proper implementation requires disjoint shadow data and independently
-trained shadow models.
+tuning problem. NLL minimisation on honestly labeled shadow data from the same
+distribution prefers the already-calibrated output, so T_hat converges near 1
+regardless of T_true. A proper implementation would require disjoint shadow
+data and independently trained shadow models with known membership splits.
 
 This study covers one dataset (DermaMNIST) and one architecture (ResNet-18).
-The conclusion that temperature scaling does not provide measurable membership-
-privacy protection applies to this experimental setting.
+The conclusion that temperature scaling does not provide measurable membership
+privacy protection applies to this experimental setting. Different training
+protocols, regularization, or hyperparameter choices could change the
+privacy-utility comparison.
+
+The loss-based attacker is assumed to know the true class label. All attacks
+receive the complete float32 probability vector produced by the model. Before
+computing attack scores, probability vectors are converted to float64 and
+renormalized. This reduces artificial ties caused by float32 softmax
+saturation while preserving the probability-output black-box threat model.
 
 ## Connection to Project 1
 
-The low-FPR precision sensitivity observed in Project 1 motivated examining
-whether post-hoc calibration changes membership-score rankings. In this study,
-temperature scaling did not produce a consistent reduction in entropy-based
-leakage: for full fine-tuning, entropy TPR at 1% FPR changed by +0.0016 ±
-0.0028 across three seeds.
+Project 1 asked which fine-tuning regimes leak membership information and why.
+Project 2 asks whether post-hoc calibration reduces that leakage.
+
+The entropy-attack finding from Project 1 motivated this study. The entropy
+results here show that temperature scaling does not reduce membership-relevant
+entropy signal in any meaningful way: entropy TPR at 1% FPR changes by
++0.002 +/- 0.003 for full FT, providing no evidence of a systematic reduction.
 
 ## Related work
 
@@ -185,9 +200,10 @@ Chen and Pattabiraman (NDSS 2024) mitigate membership inference by enforcing
 less confident predictions during training (HAMP). The finding here is the
 post-hoc counterpart: softening confidence after training improves calibration
 but leaves the membership ordering intact, and an attacker with T recovers the
-original leakage exactly. This motivates a broader comparison between training-time defenses such as HAMP
-and post-hoc calibration. The present study evaluates only post-hoc temperature
-scaling and does not establish that defense timing alone explains the difference.
+original leakage exactly. This motivates a broader comparison between
+training-time defenses such as HAMP and post-hoc calibration. The present
+study evaluates only post-hoc temperature scaling and does not establish that
+defense timing alone explains the difference.
 
 ## References
 

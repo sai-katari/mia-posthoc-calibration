@@ -207,13 +207,23 @@ defense timing alone explains the difference.
 
 ## References
 
-Guo et al. On Calibration of Modern Neural Networks. ICML 2017.
-Shokri et al. Membership Inference Attacks Against Machine Learning Models. IEEE S&P 2017.
-Yeom et al. Privacy Risk in Machine Learning: Analyzing the Connection to Overfitting. CSF 2018.
-Carlini et al. Membership Inference Attacks From First Principles. IEEE S&P 2022.
-Chen and Pattabiraman. Overconfidence is a Dangerous Thing: Mitigating
-  Membership Inference Attacks by Enforcing Less Confident Prediction. NDSS 2024.
-Yang et al. MedMNIST v2. Scientific Data 2023.
+Guo, C. et al. On Calibration of Modern Neural Networks. ICML, 2017.
+
+Shokri, R. et al. Membership Inference Attacks Against Machine Learning
+Models. IEEE S&P, 2017.
+
+Yeom, S. et al. Privacy Risk in Machine Learning: Analyzing the Connection
+to Overfitting. CSF, 2018.
+
+Carlini, N. et al. Membership Inference Attacks From First Principles.
+IEEE S&P, 2022.
+
+Chen, Z. and Pattabiraman, K. Overconfidence is a Dangerous Thing:
+Mitigating Membership Inference Attacks by Enforcing Less Confident
+Prediction. NDSS, 2024.
+
+Yang, J. et al. MedMNIST v2: A Large-Scale Lightweight Benchmark for 2D
+and 3D Biomedical Image Classification. Scientific Data, 2023.
 
 ## Author
 
